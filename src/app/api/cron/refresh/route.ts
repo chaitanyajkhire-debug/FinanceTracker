@@ -2,6 +2,8 @@ import { NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { runRefresh } from "@/lib/refresh";
 
+export const maxDuration = 60;
+
 // Triggered every morning by Vercel Cron (see vercel.json). Runs across all
 // holdings with the service-role client, which bypasses RLS.
 export async function GET(request: Request) {

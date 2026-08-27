@@ -3,19 +3,22 @@
 import { useRef, useState } from "react";
 import { addMutualFund } from "./actions";
 
-type Suggestion = { schemeCode: string; schemeName: string; nav: number; navDate: string };
+type Suggestion = { schemeCode: string; schemeName: string; nav: number | null; navDate: string | null };
 
 export function AddMutualFundForm() {
   const [query, setQuery] = useState("");
   const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
   const [selected, setSelected] = useState<Suggestion | null>(null);
   const [open, setOpen] = useState(false);
+  const [searchError, setSearchError] = useState<string | null>(null);
+  const [searching, setSearching] = useState(false);
   const formRef = useRef<HTMLFormElement>(null);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   function onQueryChange(value: string) {
     setQuery(value);
     setSelected(null);
+    setSearchError(null);
     if (debounceRef.current) clearTimeout(debounceRef.current);
 
     if (value.trim().length < 2) {
@@ -24,10 +27,25 @@ export function AddMutualFundForm() {
     }
 
     debounceRef.current = setTimeout(async () => {
-      const res = await fetch(`/api/search/mutual-funds?q=${encodeURIComponent(value)}`);
-      const data = await res.json();
-      setSuggestions(data.results ?? []);
-      setOpen(true);
+      setSearching(true);
+      try {
+        const res = await fetch(`/api/search/mutual-funds?q=${encodeURIComponent(value)}`);
+        const data = await res.json();
+        if (!res.ok) {
+          setSuggestions([]);
+          setSearchError(data.error ?? "Search failed. Try again in a moment.");
+          setOpen(true);
+          return;
+        }
+        setSuggestions(data.results ?? []);
+        setOpen(true);
+      } catch {
+        setSuggestions([]);
+        setSearchError("Couldn't reach the search service. Check your connection and try again.");
+        setOpen(true);
+      } finally {
+        setSearching(false);
+      }
     }, 300);
   }
 
@@ -55,7 +73,17 @@ export function AddMutualFundForm() {
             placeholder="e.g. Parag Parikh Flexi Cap"
             className="w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-2 text-sm text-slate-100 outline-none focus:border-emerald-500"
           />
-          {open && suggestions.length > 0 && (
+          {open && searching && (
+            <div className="absolute z-20 mt-1 w-full rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-sm text-slate-400 shadow-xl">
+              Searching…
+            </div>
+          )}
+          {open && !searching && searchError && (
+            <div className="absolute z-20 mt-1 w-full rounded-lg border border-red-900 bg-slate-900 px-3 py-2 text-sm text-red-400 shadow-xl">
+              {searchError}
+            </div>
+          )}
+          {open && !searching && !searchError && suggestions.length > 0 && (
             <ul className="absolute z-20 mt-1 max-h-60 w-full overflow-auto rounded-lg border border-slate-700 bg-slate-900 shadow-xl">
               {suggestions.map((s) => (
                 <li key={s.schemeCode}>
@@ -70,12 +98,17 @@ export function AddMutualFundForm() {
                   >
                     <div className="font-medium">{s.schemeName}</div>
                     <div className="text-xs text-slate-500">
-                      Code {s.schemeCode} · NAV ₹{s.nav.toFixed(2)}
+                      Code {s.schemeCode} · {s.nav != null ? `NAV ₹${s.nav.toFixed(2)}` : "NAV pending"}
                     </div>
                   </button>
                 </li>
               ))}
             </ul>
+          )}
+          {open && !searching && !searchError && suggestions.length === 0 && query.trim().length >= 2 && (
+            <div className="absolute z-20 mt-1 w-full rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-sm text-slate-500 shadow-xl">
+              No matching schemes found.
+            </div>
           )}
           <input type="hidden" name="scheme_code" value={selected?.schemeCode ?? ""} />
           <input type="hidden" name="scheme_name" value={selected?.schemeName ?? query} />
