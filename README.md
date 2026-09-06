@@ -1,5 +1,10 @@
 # FinanceTracker
 
+> This repository also hosts [`gift-tracker/`](gift-tracker/README.md) — a
+> separate, self-contained Next.js app for planning Harshita's 40th birthday
+> gifts. It has its own Supabase project and its own Vercel deployment;
+> nothing below applies to it.
+
 A personal dashboard for tracking Indian Mutual Funds, Stocks (NSE) and NPS
 holdings in one place, with daily automatic NAV/price updates.
 
