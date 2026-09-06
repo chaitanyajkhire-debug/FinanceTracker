@@ -170,16 +170,6 @@ export function useGifts(initialGifts: Gift[]) {
     [patchGift],
   );
 
-  const setBuyer = useCallback(
-    (id: string, buyer: string | null) =>
-      patchGift(
-        id,
-        { buyer },
-        "Couldn't update who's buying. Check your connection and try again.",
-      ),
-    [patchGift],
-  );
-
   const removeGift = useCallback(
     async (id: string) => {
       const removed = gifts.find((gift) => gift.id === id);
@@ -208,7 +198,6 @@ export function useGifts(initialGifts: Gift[]) {
     addGift,
     editGift,
     setBought,
-    setBuyer,
     removeGift,
   };
 }
