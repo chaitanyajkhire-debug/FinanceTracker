@@ -1,0 +1,66 @@
+@import "tailwindcss";
+
+@theme inline {
+  --font-sans: var(--font-geist-sans);
+  --font-display: var(--font-instrument-serif);
+}
+
+:root {
+  color-scheme: dark;
+}
+
+body {
+  background-color: #0a0711;
+  color: #f2eef6;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Soft party glow behind everything. Fixed so it doesn't scroll away. */
+.party-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background:
+    radial-gradient(60rem 40rem at 12% -10%, rgba(244, 63, 94, 0.22), transparent 60%),
+    radial-gradient(50rem 36rem at 92% 4%, rgba(168, 85, 247, 0.2), transparent 60%),
+    radial-gradient(46rem 32rem at 50% 108%, rgba(245, 158, 11, 0.14), transparent 62%);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .gift-enter {
+    animation: gift-enter 260ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+}
+
+@keyframes gift-enter {
+  from {
+    opacity: 0;
+    transform: translateY(6px) scale(0.99);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.confetti-piece {
+  position: absolute;
+  top: -12vh;
+  width: 0.6rem;
+  height: 0.9rem;
+  border-radius: 1px;
+  animation: confetti-fall linear forwards;
+}
+
+@keyframes confetti-fall {
+  to {
+    transform: translateY(115vh) rotate(720deg);
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .confetti-piece {
+    display: none;
+  }
+}
