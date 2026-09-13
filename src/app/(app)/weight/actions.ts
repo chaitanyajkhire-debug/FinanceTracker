@@ -57,14 +57,11 @@ export async function logWeight(_prev: LogState, formData: FormData): Promise<Lo
   const waistCm = rawWaist === null ? null : units === "imperial" ? inToCm(rawWaist) : rawWaist;
 
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) return { error: "Your session expired. Sign in again.", ok: false };
 
+  // No sign-in: user_id comes from the column default, and RLS pins it to the
+  // app owner (see supabase/migrations/0004_public_no_auth.sql).
   const { error } = await supabase.from("weight_entries").upsert(
     {
-      user_id: user.id,
       entry_date: entryDate,
       weight_kg: Number(weightKg.toFixed(2)),
       body_fat_pct: bodyFat,
@@ -146,14 +143,10 @@ export async function saveProfile(
   const activity = str(formData, "activity_level");
 
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) return { error: "Your session expired. Sign in again.", ok: false };
 
+  // As above: the owner's user_id is filled in by the column default.
   const { error } = await supabase.from("health_profiles").upsert(
     {
-      user_id: user.id,
       height_cm: heightCm === null ? null : Number(heightCm.toFixed(1)),
       sex: sex === "male" || sex === "female" ? sex : null,
       birth_date: str(formData, "birth_date"),
