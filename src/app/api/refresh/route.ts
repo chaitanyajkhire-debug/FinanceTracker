@@ -4,18 +4,10 @@ import { runRefresh } from "@/lib/refresh";
 
 export const maxDuration = 60;
 
-// Manual "Refresh now" button on the dashboard. Runs as the logged-in user,
-// so RLS scopes it to that user's own holdings only.
+// Manual "Refresh now" button on the dashboard. The app has no sign-in, so
+// this runs as the anon role and RLS scopes it to the owner's holdings.
 export async function POST() {
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
-
   const summary = await runRefresh(supabase);
   return NextResponse.json(summary);
 }

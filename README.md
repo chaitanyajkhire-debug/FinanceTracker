@@ -26,7 +26,13 @@ weight-loss tracker with BMI and progress insights.
   note are optional per entry. Works in kg/cm or lb/ft-in.
 - **Installable on mobile** — a web app manifest means you can add it to your
   phone's home screen and open it full-screen; every page is responsive.
-- Single-user login (Supabase Auth), with Row Level Security on every table.
+- **No sign-in.** The app is open to anyone with the URL: there is no login
+  page and no session. Row Level Security is still on, but the policies pin
+  every table to a single owner's rows (see
+  `supabase/migrations/0004_public_no_auth.sql`), so the app reads and writes
+  one person's data without needing to know who is visiting. Anyone who has
+  the URL — or the public anon key, which ships to the browser — can read and
+  change that data, so keep the URL to yourself.
 
 ## Tech stack
 
@@ -54,10 +60,13 @@ weight-loss tracker with BMI and progress insights.
    `0001_init.sql` (portfolio tables) then `0002_weight_tracker.sql` (weight
    tracker tables). (Or use the Supabase CLI: `supabase link` then
    `supabase db push`.)
-3. Under **Authentication → Users**, manually create your one user
-   (email + password) — there is no public sign-up page by design.
-4. Grab your Project URL, `anon` public key, and `service_role` key from
+3. Grab your Project URL, `anon` public key, and `service_role` key from
    **Project Settings → API**.
+
+   The migrations pin the owner to a fixed `auth.users` id. If you are setting
+   this up fresh, create one user under **Authentication → Users** and replace
+   the `owner_id` in `0004_public_no_auth.sql` with their id before running it
+   — nobody ever signs in as that user, it just gives the rows an owner.
 
 ### 2. Configure environment variables
 
@@ -79,8 +88,8 @@ npm install
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) and sign in with the
-user you created in Supabase.
+Open [http://localhost:3000](http://localhost:3000). There is no sign-in
+step — the app opens straight onto the dashboard.
 
 ### 4. Deploy to Vercel
 
@@ -102,7 +111,6 @@ curl -H "Authorization: Bearer $CRON_SECRET" https://your-app.vercel.app/api/cro
 
 ```
 src/app/(app)/          Authenticated pages: dashboard, mutual-funds, stocks, nps, weight
-src/app/login/          Login page + sign-in/sign-out server actions
 src/app/api/cron/refresh/  Daily scheduled refresh (service-role, all users)
 src/app/api/refresh/    Manual "Refresh now" (runs as the logged-in user)
 src/app/api/search/     AMFI scheme / NSE symbol search used by the add forms
