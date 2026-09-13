@@ -71,3 +71,32 @@ export type RefreshLog = {
   message: string | null;
 };
 
+export type HealthProfile = {
+  user_id: string;
+  height_cm: number | null;
+  sex: "male" | "female" | null;
+  birth_date: string | null;
+  goal_weight_kg: number | null;
+  activity_level:
+    | "sedentary"
+    | "light"
+    | "moderate"
+    | "active"
+    | "very_active"
+    | null;
+  units: "metric" | "imperial" | null;
+  created_at: string;
+  updated_at: string;
+};
+
+export type WeightEntry = {
+  id: string;
+  user_id: string;
+  entry_date: string;
+  weight_kg: number;
+  body_fat_pct: number | null;
+  waist_cm: number | null;
+  note: string | null;
+  created_at: string;
+  updated_at: string;
+};

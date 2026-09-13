@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 
@@ -14,7 +14,26 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "FinanceTracker",
-  description: "Track your mutual funds, stocks and NPS in one dashboard",
+  description:
+    "Track your mutual funds, stocks and NPS, plus your daily weight and BMI, in one dashboard",
+  applicationName: "Tracker",
+  appleWebApp: {
+    capable: true,
+    title: "Tracker",
+    statusBarStyle: "black-translucent",
+  },
+  icons: {
+    icon: "/icon.svg",
+    apple: "/icon.svg",
+  },
+};
+
+export const viewport: Viewport = {
+  themeColor: "#020617",
+  // Full-bleed on notched phones; still zoomable for accessibility.
+  viewportFit: "cover",
+  width: "device-width",
+  initialScale: 1,
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
