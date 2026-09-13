@@ -1,7 +1,8 @@
 # FinanceTracker
 
 A personal dashboard for tracking Indian Mutual Funds, Stocks (NSE) and NPS
-holdings in one place, with daily automatic NAV/price updates.
+holdings in one place, with daily automatic NAV/price updates — plus a daily
+weight-loss tracker with BMI and progress insights.
 
 ## Features
 
@@ -18,6 +19,13 @@ holdings in one place, with daily automatic NAV/price updates.
   AMFI and stock prices from Yahoo Finance (NSE `.NS` tickers) every morning,
   and records a daily portfolio snapshot for the value-over-time chart. A
   manual "Refresh now" button is also available on every page.
+- **Weight tracker** (`/weight`) — log your weight once a day and get a
+  day-on-day progress chart with a smoothed trend line, BMI against the WHO
+  scale, goal-progress ring, projected finish date, week-over-week change,
+  logging streak/consistency, and BMR/TDEE estimates. Body fat %, waist and a
+  note are optional per entry. Works in kg/cm or lb/ft-in.
+- **Installable on mobile** — a web app manifest means you can add it to your
+  phone's home screen and open it full-screen; every page is responsive.
 - Single-user login (Supabase Auth), with Row Level Security on every table.
 
 ## Tech stack
@@ -42,8 +50,10 @@ holdings in one place, with daily automatic NAV/price updates.
 ### 1. Create a Supabase project
 
 1. Create a new project at [supabase.com](https://supabase.com).
-2. In the SQL editor, run the migration in `supabase/migrations/0001_init.sql`.
-   (Or use the Supabase CLI: `supabase link` then `supabase db push`.)
+2. In the SQL editor, run the migrations in `supabase/migrations/`, in order:
+   `0001_init.sql` (portfolio tables) then `0002_weight_tracker.sql` (weight
+   tracker tables). (Or use the Supabase CLI: `supabase link` then
+   `supabase db push`.)
 3. Under **Authentication → Users**, manually create your one user
    (email + password) — there is no public sign-up page by design.
 4. Grab your Project URL, `anon` public key, and `service_role` key from
@@ -91,13 +101,16 @@ curl -H "Authorization: Bearer $CRON_SECRET" https://your-app.vercel.app/api/cro
 ## Project structure
 
 ```
-src/app/(app)/          Authenticated pages: dashboard, mutual-funds, stocks, nps
+src/app/(app)/          Authenticated pages: dashboard, mutual-funds, stocks, nps, weight
 src/app/login/          Login page + sign-in/sign-out server actions
 src/app/api/cron/refresh/  Daily scheduled refresh (service-role, all users)
 src/app/api/refresh/    Manual "Refresh now" (runs as the logged-in user)
 src/app/api/search/     AMFI scheme / NSE symbol search used by the add forms
 src/lib/data-sources/   AMFI NAV file parser, Yahoo Finance quote/search client
 src/lib/refresh.ts      Shared refresh logic (NAV/price update + snapshotting)
+src/lib/health.ts       BMI, BMR/TDEE, trend smoothing and goal projection maths
+src/components/weight/  Weight charts, BMI scale and goal ring
+src/app/manifest.ts     Web app manifest (home-screen install)
 src/lib/supabase/       Server/browser/admin Supabase clients + shared types
 supabase/migrations/    SQL schema (tables, RLS policies, triggers)
 ```
@@ -109,3 +122,17 @@ supabase/migrations/    SQL schema (tables, RLS policies, triggers)
   key (server-side only) so it can update every user's holdings.
 - The AMFI NAV list (~20k schemes) is cached in-memory per server instance
   for 6 hours to keep scheme search and refreshes fast.
+
+### Weight tracker notes
+
+- Weights and heights are always stored in metric (kg / cm). The unit
+  preference on your profile only changes how they're entered and displayed,
+  so switching between kg and lb never rewrites your history.
+- One entry per day: logging the same date twice updates that day's entry
+  rather than adding a duplicate.
+- The trend line is an exponentially weighted moving average with a 7-day
+  half-life, which is what makes day-to-day water-weight swings readable. The
+  weekly rate is a least-squares fit over the trailing 4 weeks.
+- BMI bands follow the WHO international classification; BMR uses
+  Mifflin–St Jeor, scaled by the standard activity factors for TDEE. These are
+  population-level estimates, not medical advice.

@@ -7,17 +7,18 @@ const LINKS = [
   { href: "/mutual-funds", label: "Mutual Funds" },
   { href: "/stocks", label: "Stocks" },
   { href: "/nps", label: "NPS" },
+  { href: "/weight", label: "Weight" },
 ];
 
 export function NavBar() {
   return (
     <header className="border-b border-slate-800 bg-slate-950/80 backdrop-blur sticky top-0 z-10">
       <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-3 px-4 py-3">
-        <div className="flex items-center gap-6">
+        <div className="flex flex-wrap items-center gap-x-6 gap-y-2">
           <span className="flex items-center gap-2 text-sm font-semibold text-slate-100">
             <span className="text-lg">📈</span> FinanceTracker
           </span>
-          <nav className="flex gap-1">
+          <nav className="flex flex-wrap gap-1">
             {LINKS.map((link) => (
               <Link
                 key={link.href}

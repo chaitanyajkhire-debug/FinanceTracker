@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Tracker">
+  <defs>
+    <linearGradient id="mbg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#0f172a"/>
+      <stop offset="100%" stop-color="#020617"/>
+    </linearGradient>
+    <linearGradient id="mstroke" x1="0" y1="1" x2="1" y2="0">
+      <stop offset="0%" stop-color="#22d3ee"/>
+      <stop offset="55%" stop-color="#34d399"/>
+      <stop offset="100%" stop-color="#a78bfa"/>
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" fill="url(#mbg)"/>
+  <!-- Art kept inside the safe zone (centre 80%) so launcher masks can't clip it. -->
+  <path d="M176 310l52-62 45 37 80-99" fill="none" stroke="url(#mstroke)" stroke-width="26" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="176" cy="310" r="15" fill="#22d3ee"/>
+  <circle cx="353" cy="186" r="15" fill="#a78bfa"/>
+</svg>
